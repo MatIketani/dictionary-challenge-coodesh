@@ -21,4 +21,14 @@ class UsersRepository
     {
         User::create($userData);
     }
+
+    /**
+     * Get the current user.
+     *
+     * @return User
+     */
+    public function getCurrentUser(): User
+    {
+        return auth()->user();
+    }
 }
