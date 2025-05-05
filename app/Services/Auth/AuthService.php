@@ -51,7 +51,7 @@ class AuthService
             return false;
         }
 
-        $user = auth()->user();
+        $user = $this->usersRepository->getCurrentUser();
 
         // Revoke all the existing tokens, since a new one is being generated.
         $user->tokens->each(fn (Token $token) => $token->revoke());
