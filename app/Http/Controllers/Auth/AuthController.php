@@ -52,7 +52,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Internal server error.',
-            ], 500);
+            ], 400);
         }
     }
 
@@ -89,7 +89,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Internal server error.',
-            ], 500);
+            ], 400);
         }
     }
 }
