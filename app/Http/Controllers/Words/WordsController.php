@@ -41,4 +41,33 @@ class WordsController extends Controller
             ], 400);
         }
     }
+
+    /**
+     * GET /entries/{word}
+     *
+     * @param string $word
+     * @return void
+     */
+    public function entry(string $word)
+    {
+        try {
+
+            $entry = $this->wordsService->getEntry($word);
+
+            if (!$entry) {
+
+                return response()->json([
+                    'message' => 'Word not found',
+                ], 400);
+            }
+
+            return response()->json($entry);
+        } catch (Throwable $t) {
+            Log::error($t);
+
+            return response()->json([
+                'message' => 'Internal server error',
+            ], 400);
+        }
+    }
 }

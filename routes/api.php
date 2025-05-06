@@ -17,13 +17,17 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
 
-    Route::prefix('user')->group(function () {
+    Route::prefix('user/me')->group(function () {
 
-        Route::get('me', [UsersController::class, 'me']);
+        Route::get('/', [UsersController::class, 'me']);
+
+        Route::get('/history', [UsersController::class, 'getHistory']);
     });
 
     Route::prefix('entries/en')->group(function () {
 
         Route::get('/', [WordsController::class, 'entries']);
+
+        Route::get('/{word}', [WordsController::class, 'entry']);
     });
 });

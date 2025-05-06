@@ -2,6 +2,9 @@
 
 namespace App\Services\Words;
 
+use App\Http\Clients\FreeDictionaryApiClient;
+use App\Repositories\Auth\UsersRepository;
+use App\Repositories\Words\SearchHistoriesRepository;
 use App\Repositories\Words\WordsRepository;
 
 class WordsService
@@ -14,7 +17,9 @@ class WordsService
      * @param \App\Repositories\Words\WordsRepository $wordsRepository
      */
     public function __construct(
-        private WordsRepository $wordsRepository
+        private WordsRepository $wordsRepository,
+        private SearchHistoriesRepository $searchHistoriesRepository,
+        private UsersRepository $usersRepository
     ) {}
 
     /**
@@ -39,5 +44,27 @@ class WordsService
             'hasNext' => $paginatedEntries->hasMorePages(),
             'hasPrev' => $paginatedEntries->currentPage() > 1,
         ];
+    }
+
+    /**
+     * Get word from Free Dictionary API.
+     *
+     * @param string $word
+     * @return array|null
+     */
+    public function getEntry(string $word): array|null
+    {
+        $apiResponse = FreeDictionaryApiClient::getWord($word);
+
+        if (!is_array($apiResponse)) {
+
+            return null;
+        }
+
+        $currentUser = $this->usersRepository->getCurrentUser();
+
+        $this->searchHistoriesRepository->save($currentUser->id, $word);
+
+        return $apiResponse;
     }
 }
