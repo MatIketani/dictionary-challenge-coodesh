@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\Words\WordsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
@@ -19,5 +20,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('user')->group(function () {
 
         Route::get('me', [UsersController::class, 'me']);
+    });
+
+    Route::prefix('entries/en')->group(function () {
+
+        Route::get('/', [WordsController::class, 'entries']);
     });
 });
