@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Represents a word in the database.
  *
+ * @property int $id
  * @property string $word
  */
 class Word extends Model

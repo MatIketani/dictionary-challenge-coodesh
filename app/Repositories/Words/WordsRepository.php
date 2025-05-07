@@ -31,4 +31,15 @@ class WordsRepository
             ->select('word')
             ->paginate($limit, ['*'], 'page', $page);
     }
+
+    /**
+     * Get the id of a word.
+     *
+     * @param string $word
+     * @return int
+     */
+    public function getIdByWord(string $word): int|null
+    {
+        return Word::where('word', $word)->select('id')->first()?->id;
+    }
 }

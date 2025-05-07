@@ -4,15 +4,21 @@ namespace App\Http\Controllers\Words;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EntriesValidator;
+use App\Services\Words\FavoriteWordsService;
 use App\Services\Words\WordsService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class WordsController extends Controller
 {
+    private const INTERNAL_SERVER_ERROR_MESSAGE = 'Internal server error.';
+
     public function __construct(
-        private WordsService $wordsService
+        private WordsService $wordsService,
+        private FavoriteWordsService $favoriteWordsService
     ) {}
 
     /**
@@ -37,7 +43,7 @@ class WordsController extends Controller
             Log::error($t);
 
             return response()->json([
-                'message' => 'Internal server error',
+                'message' => self::INTERNAL_SERVER_ERROR_MESSAGE,
             ], 400);
         }
     }
@@ -46,13 +52,14 @@ class WordsController extends Controller
      * GET /entries/{word}
      *
      * @param string $word
-     * @return void
+     * @return JsonResponse
      */
-    public function entry(string $word)
+    public function entry(string $word): JsonResponse
     {
         try {
+            $entryData = $this->wordsService->getEntry($word);
 
-            $entry = $this->wordsService->getEntry($word);
+            $entry = $entryData['wordData'];
 
             if (!$entry) {
 
@@ -61,12 +68,63 @@ class WordsController extends Controller
                 ], 400);
             }
 
-            return response()->json($entry);
+            return response()
+                ->json($entry)
+                ->header('x-cache', $entryData['cacheStatus']);
         } catch (Throwable $t) {
             Log::error($t);
 
             return response()->json([
-                'message' => 'Internal server error',
+                'message' => self::INTERNAL_SERVER_ERROR_MESSAGE,
+            ], 400);
+        }
+    }
+
+    /**
+     * POST /entries/en/{word}/favorite
+     *
+     * @param string $word
+     * @return JsonResponse|\Illuminate\Http\Response
+     */
+    public function favorite(string $word): JsonResponse|Response
+    {
+        try {
+            $favoriteStatus = $this->favoriteWordsService->setFavorite($word);
+
+            if (!$favoriteStatus) {
+
+                return response()->json([
+                    'message' => 'Word not found',
+                ], 400);
+            }
+
+            return response(status: 204);
+        } catch (Throwable $t) {
+            Log::error($t);
+
+            return response()->json([
+                'message' => self::INTERNAL_SERVER_ERROR_MESSAGE,
+            ], 400);
+        }
+    }
+
+    /**
+     * DELETE /entries/en/{word}/unfavorite
+     *
+     * @param string $word
+     * @return JsonResponse|\Illuminate\Http\Response
+     */
+    public function unfavorite(string $word): JsonResponse|Response
+    {
+        try {
+            $this->favoriteWordsService->unsetFavorite($word);
+
+            return response(status: 204);
+        } catch (Throwable $t) {
+            Log::error($t);
+
+            return response()->json([
+                'message' => self::INTERNAL_SERVER_ERROR_MESSAGE,
             ], 400);
         }
     }

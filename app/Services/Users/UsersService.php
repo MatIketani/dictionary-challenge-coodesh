@@ -57,7 +57,7 @@ class UsersService
         $results = collect($paginatedHistory->items())->map(
             fn(SearchHistory $history) => [
                 'word' => $history->word,
-                'added' => $history->created_at->toIso8601ZuluString()
+                'added' => $history->created_at
             ]
         );
 

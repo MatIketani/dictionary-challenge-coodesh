@@ -6,6 +6,7 @@ use App\Http\Clients\FreeDictionaryApiClient;
 use App\Repositories\Auth\UsersRepository;
 use App\Repositories\Words\SearchHistoriesRepository;
 use App\Repositories\Words\WordsRepository;
+use Cache;
 
 class WordsService
 {
@@ -50,21 +51,34 @@ class WordsService
      * Get word from Free Dictionary API.
      *
      * @param string $word
-     * @return array|null
+     * @return array{isCached: bool, wordData: array|null}
      */
-    public function getEntry(string $word): array|null
+    public function getEntry(string $word): array
     {
-        $apiResponse = FreeDictionaryApiClient::getWord($word);
+        $cacheStatus = 'HIT';
+
+        $apiResponse = Cache::remember("words_{$word}", 60 * 60 * 24, function () use ($word, &$cacheStatus) {
+
+            $cacheStatus = 'MISS';
+
+            return FreeDictionaryApiClient::getWord($word);
+        });
 
         if (!is_array($apiResponse)) {
 
-            return null;
+            return [
+                'cacheStatus' => null,
+                'wordData' => null,
+            ];
         }
 
         $currentUser = $this->usersRepository->getCurrentUser();
 
         $this->searchHistoriesRepository->save($currentUser->id, $word);
 
-        return $apiResponse;
+        return [
+            'cacheStatus' => $cacheStatus,
+            'wordData' => $apiResponse,
+        ];
     }
 }
