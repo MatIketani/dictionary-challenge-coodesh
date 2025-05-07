@@ -53,12 +53,22 @@ DB_PASSWORD=sua_senha
 php artisan migrate
 ```
 
-6. Importe o dicionário de palavras:
+6. Crie o cliente do Laravel Passport:
+```bash
+php artisan passport:client --personal
+```
+
+7. Gere as chaves do OAuth para o Laravel Passport:
+```bash
+php artisan passport:keys
+```
+
+8. Importe o dicionário de palavras:
 ```bash
 php artisan dictionary:import
 ```
 
-7. Inicie o servidor:
+9. Inicie o servidor:
 ```bash
 php artisan serve
 ```
