@@ -15,7 +15,7 @@ class ImportWordsFromJson extends Command
     /**
      * Command name: php artisan app:import-words-from-json
      */
-    protected $signature = 'app:import-words-from-json';
+    protected $signature = 'dictionary:import';
 
     /**
      * Command purpose description
